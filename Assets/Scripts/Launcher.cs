@@ -1,43 +1,35 @@
 using UnityEngine;
-using Photon.Pun;
-using Photon.Realtime;
 
-public class Launcher : MonoBehaviourPunCallbacks
+public class Launcher : Photon.PunBehaviour
 {
-	#region Private Serializable Fields
+	private string _gameVersion = "1";
+	private bool isConnecting;
+	public PhotonLogLevel loglevel = PhotonLogLevel.Informational;
+	public byte maxPlayersPerRoom = 4;
+	public GameObject controlPanel;
+	public GameObject progressLabel;
 
-	[Tooltip("The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created")]
-	[SerializeField]
-	private byte maxPlayersPerRoom = 4;
-
-	[Tooltip("The Ui Panel to let the user enter name, connect and play")]
-	[SerializeField]
-	private GameObject controlPanel;
-
-	[Tooltip("The UI Label to inform the user that the connection is in progress")]
-	[SerializeField]
-	private GameObject progressLabel;
-
-	#endregion
-
-	#region Private Fields
-
-	string gameVersion = "1";
-	bool isConnecting;
-
-	#endregion
-
-	#region MonoBehaviour CallBacks
-
-	void Awake()
+	private void Awake()
 	{
-		PhotonNetwork.AutomaticallySyncScene = true;
+		PhotonNetwork.autoJoinLobby = false;
+		PhotonNetwork.automaticallySyncScene = true;
+		PhotonNetwork.logLevel = loglevel;
 	}
 
-	void Start()
+	private void Start()
 	{
 		progressLabel.SetActive(false);
 		controlPanel.SetActive(true);
+	}
+
+	public void Connect()
+	{
+		progressLabel.SetActive(true);
+		controlPanel.SetActive(false);
+		if (PhotonNetwork.connected)
+			PhotonNetwork.JoinRandomRoom();
+		else
+			isConnecting = PhotonNetwork.ConnectUsingSettings(_gameVersion);
 	}
 
 	public override void OnConnectedToMaster()
@@ -49,45 +41,17 @@ public class Launcher : MonoBehaviourPunCallbacks
 		}
 	}
 
-	public override void OnDisconnected(DisconnectCause cause)
+	public override void OnDisconnectedFromPhoton()
 	{
 		progressLabel.SetActive(false);
 		controlPanel.SetActive(true);
-		isConnecting = false;
-		Debug.LogWarningFormat("PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}", cause);
 	}
 
-	public override void OnJoinRandomFailed(short returnCode, string message)
-	{
-		PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = maxPlayersPerRoom });
-	}
+	public override void OnPhotonRandomJoinFailed(object[] codeAndMsg) => PhotonNetwork.CreateRoom(null, new RoomOptions() { MaxPlayers = maxPlayersPerRoom }, null);
 
 	public override void OnJoinedRoom()
 	{
-		if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
-		{
+		if (PhotonNetwork.room.PlayerCount == 1)
 			PhotonNetwork.LoadLevel("Room for 1");
-		}
 	}
-
-	#endregion
-
-	#region Public Methods
-
-	public void Connect()
-	{
-		progressLabel.SetActive(true);
-		controlPanel.SetActive(false);
-		if (PhotonNetwork.IsConnected)
-		{
-			PhotonNetwork.JoinRandomRoom();
-		}
-		else
-		{
-			isConnecting = PhotonNetwork.ConnectUsingSettings();
-			PhotonNetwork.GameVersion = gameVersion;
-		}
-	}
-
-	#endregion
 }

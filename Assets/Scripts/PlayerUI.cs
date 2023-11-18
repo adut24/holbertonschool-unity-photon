@@ -3,48 +3,27 @@ using UnityEngine.UI;
 
 public class PlayerUI : MonoBehaviour
 {
-	#region Private Fields
-
-	[Tooltip("UI Text to display the Player's Name")]
-	[SerializeField]
-	private Text playerNameText;
-
-	[Tooltip("UI Slider to display the Player's Health")]
-	[SerializeField]
-	private Slider playerHealthSlider;
-
-	private PlayerManager target;
-	float characterControllerHeight = 0f;
-	Transform targetTransform;
-	Renderer targetRenderer;
-	CanvasGroup _canvasGroup;
-	Vector3 targetPosition;
-
-	#endregion
-
-	#region Public Fields
-
-	[Tooltip("Pixel offset from the player target")]
-	[SerializeField]
-	private Vector3 screenOffset = new Vector3(0f, 30f, 0f);
-
-	#endregion
-
-	#region MonoBehaviour Callbacks
+	public Text playerNameText;
+	public Slider playerHealthSlider;
+	public Vector3 screenOffset = new Vector3(0f, 30f, 0f);
+	private PlayerManager _target;
+	private float _characterControllerHeight = 0f;
+	private Transform _targetTransform;
+	private Renderer _targetRenderer;
+	private CanvasGroup _canvasGroup;
+	private Vector3 _targetPosition;
 
 	void Awake()
 	{
-		transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
-		_canvasGroup = this.GetComponent<CanvasGroup>();
+		GetComponent<Transform>().SetParent(GameObject.Find("Canvas").GetComponent<Transform>());
+		_canvasGroup = GetComponent<CanvasGroup>();
 	}
 
 	void Update()
 	{
 		if (playerHealthSlider != null)
-		{
-			playerHealthSlider.value = target.Health;
-		}
-		if (target == null)
+			playerHealthSlider.value = _target.health;
+		if (_target == null)
 		{
 			Destroy(gameObject);
 			return;
@@ -53,43 +32,28 @@ public class PlayerUI : MonoBehaviour
 
 	void LateUpdate()
 	{
-		if (targetRenderer != null)
-		{
-			_canvasGroup.alpha = targetRenderer.isVisible ? 1f : 0f;
-		}
+		if (_targetRenderer != null)
+			_canvasGroup.alpha = _targetRenderer.isVisible ? 1f : 0f;
 
-
-		if (targetTransform != null)
+		if (_targetTransform != null)
 		{
-			targetPosition = targetTransform.position;
-			targetPosition.y += characterControllerHeight;
-			transform.position = Camera.main.WorldToScreenPoint(targetPosition) + screenOffset;
+			_targetPosition = _targetTransform.position;
+			_targetPosition.y += _characterControllerHeight;
+			transform.position = Camera.main.WorldToScreenPoint(_targetPosition) + screenOffset;
 		}
 	}
 
-	#endregion
-
-	#region Public Methods
-
-	public void SetTarget(PlayerManager _target)
+	public void SetTarget(PlayerManager target)
 	{
-		if (_target == null)
-		{
+		if (target == null)
 			return;
-		}
-		target = _target;
-		targetTransform = target.GetComponent<Transform>();
-		targetRenderer = target.GetComponent<Renderer>();
-		CharacterController characterController = _target.GetComponent<CharacterController>();
-		if (characterController != null)
-		{
-			characterControllerHeight = characterController.height;
-		}
+		_target = target;
 		if (playerNameText != null)
-		{
-			playerNameText.text = target.photonView.Owner.NickName;
-		}
+			playerNameText.text = _target.photonView.owner.NickName;
+		_targetTransform = _target.GetComponent<Transform>();
+		_targetRenderer = _target.GetComponent<Renderer>();
+		CharacterController _characterController = _target.GetComponent<CharacterController>();
+		if (_characterController != null)
+			_characterControllerHeight = _characterController.height;
 	}
-
-	#endregion
 }
