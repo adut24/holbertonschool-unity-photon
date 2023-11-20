@@ -31,7 +31,7 @@ public class PlayerManager : Photon.PunBehaviour, IPunObservable
 		UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
 		if (playerUiPrefab != null)
 		{
-			GameObject _uiGo = Instantiate(playerUiPrefab) as GameObject;
+			GameObject _uiGo = Instantiate(playerUiPrefab);
 			_uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 		}
 	}
@@ -92,6 +92,8 @@ public class PlayerManager : Photon.PunBehaviour, IPunObservable
 		{
 			_isFiring = (bool)stream.ReceiveNext();
 			health = (float)stream.ReceiveNext();
+			if (beams != null && _isFiring != beams.activeInHierarchy)
+				beams.SetActive(_isFiring);
 		}
 	}
 

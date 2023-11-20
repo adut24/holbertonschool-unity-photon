@@ -398,8 +398,8 @@ MonoBehaviour:
   ownershipTransfer: 0
   ObservedComponents:
   - {fileID: 1406460130570626521}
-  - {fileID: 2610787773330650237}
   - {fileID: 477404754407552045}
+  - {fileID: 2610787773330650237}
   ObservedComponentsFoldoutOpen: 1
   viewIdField: 0
   instantiationId: -1
@@ -420,6 +420,7 @@ MonoBehaviour:
   beams: {fileID: 5568894477320664949}
   health: 1
   playerUiPrefab: {fileID: 7601717197468967018, guid: 670a570ac4053a04bb47b1e54ed09361, type: 3}
+  winText: {fileID: 2771278792793076276, guid: eadbf4587bdc0d64d9f49cfc231d79be, type: 3}
 --- !u!114 &1406460130570626521
 MonoBehaviour:
   m_ObjectHideFlags: 0
